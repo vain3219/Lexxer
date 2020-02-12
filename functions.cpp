@@ -44,16 +44,20 @@ bool queueInit( std::string file, std::queue<std::string>& queue ) {
 void parseTokens( std::string line, std::queue<std::string>& queue ) {
     size_t x=0,y=0;
     std::string tkn = "", prev = "";
-    std::regex alphaNum ("([a-zA-Z])");
+    std::regex alphaNum ( "([a-zA-Z]||[0-9])" );
     
-    while(( y = line.find_first_of(" ,.(){};[]:!", x)) != std::string::npos ) {
-        prev = line[y-1];
-        if( line[y] == '!') {                                       // if ther delimter found is a comment symboly ( ! )
+    while(( y = line.find_first_of( " ,.(){};[]:!*+-=/><%", x ) ) != std::string::npos ) {
+        prev = line[ y - 1 ];
+        if( line.size() - y == 1 ) {
+            queue.push( line.substr( x, y - x ) );
+            queue.push( line.substr( y, line.size() - y ));
             x = y + 1;
-            y = line.find_first_of("!", x);                         // skip dat shit
+        } else if( line[y] == '!' ) {                                       // if ther delimter found is a comment symboly ( ! )
+            x = y + 1;
+            y = line.find_first_of( "!", x );                         // skip dat shit
             x = y + 1;
         } else {
-            if( line[y] == '(' || line[y] == ')' || line[y] == '{' || line[y] == '}' ) {
+            if( line[y] != ' ' ) {
                 if ( std::regex_match( prev, alphaNum ) ) {         // if the previous character alphabetic or a digit
                     queue.push( line.substr( x, y - x ) );          // go back and pick up that identifier
                 } else {
@@ -82,7 +86,7 @@ void initTokenQueue( std::queue<std::string>& queueIn, std::queue<std::string>& 
     
     while( !queueIn.empty() ) {
         line = queueIn.front();
-        parseTokens(line, queueOut);
+        parseTokens( line, queueOut );
         queueIn.pop();
     }
 }

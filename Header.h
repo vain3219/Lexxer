@@ -14,11 +14,11 @@
 #include <queue>
 #include <regex>
 
-bool queueInit(std::string file, std::queue<std::string>& queue);
+bool queueInit( std::string file, std::queue<std::string>& queue );
 
-void parseTokens(std::string line, std::queue<std::string>& queue);
+void parseTokens( std::string line, std::queue<std::string>& queue );
 
-void initTokenQueue(std::queue<std::string>& queueIn, std::queue<std::string>& queueOut);
+void initTokenQueue( std::queue<std::string>& queueIn, std::queue<std::string>& queueOut );
 
 
 #endif /* Header_h */
