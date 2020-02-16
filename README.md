@@ -33,15 +33,17 @@ A simple  test case
 while(fahr < upper)   a = 23.00 whileend
 
 Output:
-token              lexeme
+
+token---------------lexeme
 --------------------------
-keyword              while                    
-separator            (                    
-identifier           fahr              
-operator             <                    
-identifier           upper                    
-separator            )                    
-identifier           a                    
-operator             = 
-real                 23.00                    
-keyword              whileend
+keyword -------------------------- while                    
+separator -------------------------- (                    
+identifier--------------------------fahr              
+operator--------------------------<                    
+identifier--------------------------upper                    
+separator--------------------------)                    
+identifier--------------------------a                    
+operator--------------------------=
+
+real--------------------------------23.00                    
+keyword--------------------------whileend
