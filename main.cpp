@@ -13,6 +13,7 @@ int main( int argc, const char * argv[] ) {
     Lexer lex(srcFile);
     
     lex.tokenQueue();
+    lex.FSM();
     lex.output();
     
     return 0;
