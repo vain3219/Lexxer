@@ -68,3 +68,51 @@ ________________________________________________________________________________
 * Valid Numbers		:	integers whole numbers (1,2,3,...) and reals floats (5.0, 0.9, 1.75, ...)
 * Valid Block Comments	:	!  this is a block comment to be ignored by the Lexical Analyzer !
 
+________________________________________________________________________________________________________________________________
+
+## FSM Psuedo
+FSM(tokenQueue)
+
+  int state = 1, i = 0
+ 
+ while lexeme.lenght()
+    
+    switch state
+      case 1: Determine token[i]
+              Update state
+              break
+
+      case 2: Determine token[i]
+              Update state
+              break
+
+              .
+              .
+              .
+
+      case 6: Determine token[i]
+              Update state
+              break
+
+    end switch
+    
+  end while
+
+  string token   
+
+  switch state
+  
+    case 2: token = "Identifier"
+            break
+
+    case 3: token = "Integer"
+            break
+
+    case 5: token = "Real Number"
+            break
+
+    default: token = "Unknown"
+    
+  end switch
+  
+end FSM
