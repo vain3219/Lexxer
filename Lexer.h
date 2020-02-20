@@ -89,6 +89,9 @@ void Lexer::parseTokens(std::string input)
 // Parsed tokens will be pushed into a queue to preserve order
 // Library facilities used: string, queue, regex
 {
+    /*
+        TODO: Allow floats ( decimal values ) to be parsed correctly
+    */
     size_t x = 0, y = 0;
     std::string token = "", prev = "";
     std::regex alphaNum("([a-zA-Z]||[0-9])");
