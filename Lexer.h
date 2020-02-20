@@ -32,10 +32,13 @@ FUNCTIONS for the Lexer class:
 #include <string>
 #include <fstream>
 #include <queue>
+#include <vector>
 #include <regex>
 
-enum state{NONE, ENTRY, IDENTIFIER, INTEGER, IN_FLOAT, FLOAT, UNKNOWN};
+enum state{NONE, ENTRY, IDENTIFIER, INTEGER, IN_FLOAT, FLOAT, UNKNOWN, OPERATOR, SEPARATOR};
 std::string keyAr[] = {"int", "float", "bool", "true", "false", "if", "else", "then", "endif", "while", "whileend", "do", "doend", "for", "forend", "input", "output", "and", "or", "not"};
+std::vector<std::string> op{"*", "+", "-", "=", "/", ">", "<", "%"};
+std::vector<std::string> sep{"'", "(" ,")" ,"{" ,"}" ,"[" ,"]" ,"," ,"." ,":" ,";"};
 
 class Lexer
 {
@@ -176,15 +179,6 @@ void Lexer::FSM()
         do{
             target = line[i];
             switch(curState) {
-                    /*
-                     TODO: Add operators and separators into the FSM table (in the README.md) AND implement the changes into the switch statement.
-                        This shouldn't take much work assuming that operators and separators are only 1 character in length.
-                        This would consist of:
-                            1. Adding "SEPARATOR" and "OPERATOR" into the enum state type
-                            2. Creating an explicit regular expression for operators and separators
-                            3. Adding additional cases to both switch statements for the new states
-                            4. Adding additional if statements to both switch statements in each case for the new states
-                     */
                 case ENTRY: //1
                     if(std::regex_match(target, std::regex("[0-9]"))) {         //digit
                         curState = 3;
@@ -197,6 +191,12 @@ void Lexer::FSM()
                     }
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
+                    }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 7;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 8;
                     }
                     else {                                                      //any other unchecked character
                         curState = 6;
@@ -216,6 +216,12 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 2;
                     }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 6;
+                    }
                     break;
                     
                 case INTEGER: //3
@@ -229,6 +235,12 @@ void Lexer::FSM()
                         curState = 4;
                     }
                     else if (target == "$") {                                   //dollar sign
+                        curState = 6;
+                    }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
                         curState = 6;
                     }
                     break;
@@ -246,6 +258,12 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
                     }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 6;
+                    }
                     break;
                     
                 case FLOAT: //5
@@ -261,6 +279,12 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
                     }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 6;
+                    }
                     break;
                     
                 case UNKNOWN: //6
@@ -274,6 +298,54 @@ void Lexer::FSM()
                         curState = 6;
                     }
                     else if (target == "$") {                                   //dollar sign
+                        curState = 6;
+                    }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 6;
+                    }
+                    break;
+                    
+                case OPERATOR: //7
+                    if(std::regex_match(target, std::regex("[0-9]"))) {         //digit
+                        curState = 6;
+                    }
+                    else if(std::regex_match(target, std::regex("[a-zA-Z]"))) { //letter
+                        curState = 6;
+                    }
+                    else if(target == ".") {                                    //decimal
+                        curState = 6;
+                    }
+                    else if (target == "$") {                                   //dollar sign
+                        curState = 6;
+                    }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
+                        curState = 6;
+                    }
+                    break;
+                    
+                case SEPARATOR: //8
+                    if(std::regex_match(target, std::regex("[0-9]"))) {         //digit
+                        curState = 6;
+                    }
+                    else if(std::regex_match(target, std::regex("[a-zA-Z]"))) { //letter
+                        curState = 6;
+                    }
+                    else if(target == ".") {                                    //decimal
+                        curState = 6;
+                    }
+                    else if (target == "$") {                                   //dollar sign
+                        curState = 6;
+                    }
+                    else if(std::count(op.begin(), op.end(), target)) {         //operator
+                        curState = 6;
+                    }
+                    else if(std::count(sep.begin(), sep.end(), target)) {       //separator
                         curState = 6;
                     }
                     break;
@@ -301,6 +373,14 @@ void Lexer::FSM()
                 
             case UNKNOWN:
                 tokenLex.push(std::make_pair("Unknown", line));
+                break;
+                
+            case SEPARATOR:
+                tokenLex.push(std::make_pair("Separator", line));
+                break;
+                
+            case OPERATOR:
+                tokenLex.push(std::make_pair("Operator", line));
                 break;
         }
         i = 0;
