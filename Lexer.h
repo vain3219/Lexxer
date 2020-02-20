@@ -140,17 +140,17 @@ void Lexer::output()
 // Library facilities used: queue, iostream
 {
     std::pair<std::string, std::string> printMe;
-    std::cout << std::setw(15) << std::left << "Token" << "\t\tLexeme" << "\n_____________________________\n";
+    std::cout << std::setw(15) << std::left << "Token" << "\t|\tLexeme" << "\n________________|___________\n";
     while(!tokenLex.empty()) {
         printMe = tokenLex.front();
-        std::cout << std::setw(15) << printMe.first << "\t\t" << printMe.second << std::endl;
+        std::cout << std::setw(15) << printMe.first << "\t|\t" << printMe.second << std::endl;
         tokenLex.pop();
     }
 }
 
 bool Lexer::isKeyword(std::string ident)
 // Compares the string passed to an array of legal keywords.  Returns true if the string matches any string in the keyword array.
-//
+// Library facilities used: string
 {
     for(std::string e : keyAr) {
         if( ident == e)
@@ -160,8 +160,8 @@ bool Lexer::isKeyword(std::string ident)
 }
 
 void Lexer::FSM()
-//
-//
+// Identifies the token of all given lexemes from the tokens queue.  Once identified, the token and lexeme are placed into a queue of pairs (tokenLex) of type <string, string>
+// Library facilities used: queue, iostream, regex, string
 {
     int curState;
     size_t i = 0;
@@ -173,6 +173,15 @@ void Lexer::FSM()
         do{
             target = line[i];
             switch(curState) {
+                    /*
+                     TODO: Add operators and separators into the FSM table (in the README.md) AND implement the changes into the switch statement.
+                        This shouldn't take much work assuming that operators and separators are only 1 character in length.
+                        This would consist of:
+                            1. Adding "SEPARATOR" and "OPERATOR" into the enum state type
+                            2. Creating an explicit regular expression for operators and separators
+                            3. Adding additional cases to both switch statements for the new states
+                            4. Adding additional if statements to both switch statements in each case for the new states
+                     */
                 case ENTRY: //1
                     if(std::regex_match(target, std::regex("[0-9]"))) {         //digit
                         curState = 3;
@@ -186,7 +195,7 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
                     }
-                    else {
+                    else {                                                      //any other unchecked character
                         curState = 6;
                     }
                     break;
