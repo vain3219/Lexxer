@@ -98,30 +98,30 @@ void Lexer::parseTokens(std::string input)
     
     while ((y = input.find_first_of(" ,.(){};[]:!*+-=/><%", x)) != std::string::npos) {
         prev = input[y - 1];
-        if (input.size() - y == 1) {
-            tokens.push(input.substr(x, y - x));
-            tokens.push(input.substr(y, input.size() - y));
+        if (input.size() - y == 1) {                            // if line[y] is just before ';'
+            tokens.push(input.substr(x, y - x));                // get lexeme before ';'
+            tokens.push(input.substr(y, input.size() - y));     // get ';'
         }
-        else if (input[y] == '!') {
+        else if (input[y] == '!') {                             // if the delimiter is a comment symbol
             x = y + 1;
-            y = input.find_first_of('!', x);
+            y = input.find_first_of('!', x);                    // find the enclosing comment symbol to skip over it
         }
         else {
             if (input[y] != ' ') {
-                if (std::regex_match(prev, alphaNum)) {
-                    tokens.push(input.substr(x, y - x));
+                if (std::regex_match(prev, alphaNum)) {         // if the previous character is alphabetic or a digit
+                    tokens.push(input.substr(x, y - x));        // go back and pick up the lexeme
                 }
                 else {
-                    token.push_back(input[y]);
+                    token.push_back(input[y]);                  // otherwise get the single lexeme
                     tokens.push(token);
                     token = "";
                 }
             }
             else if (y - x > 0) {
-                tokens.push(input.substr(x, y - x));
+                tokens.push(input.substr(x, y - x));            // get any other lexeme that is at least 1 character long
             }
         }
-        x = y + 1;
+        x = y + 1;                                              // update the starting index for string.find_first_of()
     }
 }
 
