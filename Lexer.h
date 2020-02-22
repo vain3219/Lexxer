@@ -92,15 +92,12 @@ void Lexer::parseTokens(std::string input)
 // Parsed tokens will be pushed into a queue to preserve order
 // Library facilities used: string, queue, regex
 {
-    /*
-        TODO: Allow floats ( decimal values ) to be parsed correctly
-    */
     size_t x = 0, y = 0;
-    std::string token = "", prev = "";
-    std::regex alphaNum("([a-zA-Z]||[0-9])");
+    std::string token = "", prev = "", next = "";
     
     while ((y = input.find_first_of(" ,.(){};[]:!*+-=/><%", x)) != std::string::npos) {
         prev = input[y - 1];
+        next = input[y + 1];
         if (input.size() - y == 1) {                            // if line[y] is just before ';'
             tokens.push(input.substr(x, y - x));                // get lexeme before ';'
             tokens.push(input.substr(y, input.size() - y));     // get ';'
@@ -111,7 +108,13 @@ void Lexer::parseTokens(std::string input)
         }
         else {
             if (input[y] != ' ') {
-                if (std::regex_match(prev, alphaNum)) {         // if the previous character is alphabetic or a digit
+                if(input[y] == '.') {                                       // if the delimiter is a "."
+                    if(std::regex_match(next, std::regex("[0-9]"))) {       // if the next token is a number
+                        y = input.find_first_of(" ;", x);                   // find the next seperator
+                        tokens.push(input.substr(x, y - x));                // get float
+                    }
+                }
+                else if (std::regex_match(prev, std::regex("([a-zA-Z]||[0-9])"))) {         // if the previous character is alphabetic or a digit
                     tokens.push(input.substr(x, y - x));        // go back and pick up the lexeme
                 }
                 else {
@@ -192,6 +195,9 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
                     }
+                    /*   -- Delete this comment after documentation --
+                     std::count(begin, end, findMe) searches a vector from the given iterators "begin" to "end" to find "findMe" in the vector.  returns true if found
+                     */
                     else if(std::count(op.begin(), op.end(), target)) {         //operator
                         curState = 7;
                     }
