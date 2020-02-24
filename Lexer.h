@@ -93,14 +93,16 @@ void Lexer::parseTokens(std::string input)
 // Library facilities used: string, queue, regex
 {
     size_t x = 0, y = 0;
-    std::string token = "", prev = "", next = "";
+    std::string prev = "", next = "";
+    bool noDelim = true;
     
     while ((y = input.find_first_of(" ,.(){};[]:!*+-=/><%", x)) != std::string::npos) {
+        noDelim = false;
         prev = input[y - 1];
         next = input[y + 1];
-        if (input.size() - y == 1) {                            // if line[y] is just before ';'
+        if (input[y] == ';') {
             tokens.push(input.substr(x, y - x));                // get lexeme before ';'
-            tokens.push(input.substr(y, input.size() - y));     // get ';'
+            tokens.push(input.substr(y, 1));                    // get ';'
         }
         else if (input[y] == '!') {                             // if the delimiter is a comment symbol
             x = y + 1;
@@ -110,17 +112,16 @@ void Lexer::parseTokens(std::string input)
             if (input[y] != ' ') {
                 if(input[y] == '.') {                                       // if the delimiter is a "."
                     if(std::regex_match(next, std::regex("[0-9]"))) {       // if the next token is a number
-                        y = input.find_first_of(" ;", x);                   // find the next seperator
+                        y = input.find_first_of(" ;,", x);                  // find the next seperator
                         tokens.push(input.substr(x, y - x));                // get float
                     }
                 }
                 else if (std::regex_match(prev, std::regex("([a-zA-Z]||[0-9])"))) {         // if the previous character is alphabetic or a digit
                     tokens.push(input.substr(x, y - x));        // go back and pick up the lexeme
+                    tokens.push(input.substr(y, 1));            //push input[y]
                 }
                 else {
-                    token.push_back(input[y]);                  // otherwise get the single lexeme
-                    tokens.push(token);
-                    token = "";
+                    tokens.push(input.substr(y, 1));            // push input[y]
                 }
             }
             else if (y - x > 0) {
@@ -129,6 +130,9 @@ void Lexer::parseTokens(std::string input)
         }
         x = y + 1;                                              // update the starting index for string.find_first_of()
     }
+    
+    if(noDelim)                                                 // if no delimiter has been found within all of input
+        tokens.push(input);
 }
 
 void Lexer::tokenQueue()

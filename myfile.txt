@@ -1,3 +1,10 @@
-! Declare and assign a number !
-int number;
-number = 924;
+! Find largest value between two numbers!
+int num1, num2, large$
+if(num1 > num2)
+{
+    large = num1$;
+}
+else
+{
+    large = num2$;
+}
