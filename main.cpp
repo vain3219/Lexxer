@@ -12,8 +12,6 @@ int main( int argc, const char * argv[] ) {
     std::string srcFile = "/Users/codythompson/Documents/Code/MyCompiler/LexicalAnalysis/LexicalAnalysis/myfile.txt";              // This will eventually be passed into the program as an arguement
     Lexer lex(srcFile);
     
-    lex.tokenQueue();
-    lex.FSM();
     lex.output();
     
     return 0;

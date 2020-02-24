@@ -45,14 +45,13 @@ class Lexer
 public:
     Lexer();
     Lexer(std::string filename);
-    void parseTokens(std::string input);
-    void tokenQueue();
     void output();
+    
+private:
+    void parseTokens(std::string input);
     void FSM();
     bool isKeyword(std::string ident);
     
-private:
-    std::queue<std::string> queue;
     std::queue<std::string> tokens;
     std::queue<std::pair < std::string, std::string > > tokenLex;
     std::string line;
@@ -80,10 +79,11 @@ Lexer::Lexer(std::string filename)
         line = "";
         
         while (std::getline(ifile, line, '\n')) {
-            queue.push(line);
+            parseTokens(line);
         }
     }
     ifile.close();
+    FSM();
 }
 
 void Lexer::parseTokens(std::string input)
@@ -101,12 +101,12 @@ void Lexer::parseTokens(std::string input)
         prev = input[y - 1];
         next = input[y + 1];
         if (input[y] == ';') {
-            tokens.push(input.substr(x, y - x));                // get lexeme before ';'
-            tokens.push(input.substr(y, 1));                    // get ';'
+            tokens.push(input.substr(x, y - x));                            // get lexeme before ';'
+            tokens.push(input.substr(y, 1));                                // get ';'
         }
-        else if (input[y] == '!') {                             // if the delimiter is a comment symbol
+        else if (input[y] == '!') {                                         // if the delimiter is a comment symbol
             x = y + 1;
-            y = input.find_first_of('!', x);                    // find the enclosing comment symbol to skip over it
+            y = input.find_first_of('!', x);                                // find the enclosing comment symbol to skip over it
         }
         else {
             if (input[y] != ' ') {
@@ -117,35 +117,21 @@ void Lexer::parseTokens(std::string input)
                     }
                 }
                 else if (std::regex_match(prev, std::regex("([a-zA-Z]||[0-9])"))) {         // if the previous character is alphabetic or a digit
-                    tokens.push(input.substr(x, y - x));        // go back and pick up the lexeme
-                    tokens.push(input.substr(y, 1));            //push input[y]
+                    tokens.push(input.substr(x, y - x));                    // go back and pick up the lexeme
+                    tokens.push(input.substr(y, 1));                        // push input[y]
                 }
                 else {
-                    tokens.push(input.substr(y, 1));            // push input[y]
+                    tokens.push(input.substr(y, 1));                        // push input[y]
                 }
             }
             else if (y - x > 0) {
-                tokens.push(input.substr(x, y - x));            // get any other lexeme that is at least 1 character long
+                tokens.push(input.substr(x, y - x));                        // get any other lexeme that is at least 1 character long
             }
         }
-        x = y + 1;                                              // update the starting index for string.find_first_of()
+        x = y + 1;                                                          // update the starting index for string.find_first_of()
     }
-    
-    if(noDelim)                                                 // if no delimiter has been found within all of input
+    if(noDelim)                                                             // if no delimiter has been found within all of input
         tokens.push(input);
-}
-
-void Lexer::tokenQueue()
-// Takes queue of lines one by one and passes to parseTokens function
-// Library facilities used: queue, string
-{
-    line = "";
-    
-    while (!queue.empty()) {
-        line = queue.front();
-        parseTokens(line);
-        queue.pop();
-    }
 }
 
 void Lexer::output()
@@ -153,6 +139,7 @@ void Lexer::output()
 // Library facilities used: queue, iostream
 {
     std::pair<std::string, std::string> printMe;
+    std::cout << "Number of lexemes: " << tokenLex.size() << std::endl << std::endl;
     std::cout << std::setw(15) << std::left << "Token" << "\t|\tLexeme" << "\n________________|___________\n";
     while(!tokenLex.empty()) {
         printMe = tokenLex.front();
@@ -199,9 +186,6 @@ void Lexer::FSM()
                     else if (target == "$") {                                   //dollar sign
                         curState = 6;
                     }
-                    /*   -- Delete this comment after documentation --
-                     std::count(begin, end, findMe) searches a vector from the given iterators "begin" to "end" to find "findMe" in the vector.  returns true if found
-                     */
                     else if(std::count(op.begin(), op.end(), target)) {         //operator
                         curState = 7;
                     }
